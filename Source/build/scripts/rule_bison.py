@@ -95,6 +95,19 @@ for outputHTry in outputHTries:
 
 assert outputHTmp != None
 
+# Bison emits an #include for the generated header using the temporary name
+# it chose above. Since this script normalizes the header to .h, keep the
+# generated .cpp in sync with the normalized header name.
+outputCppFile = open(outputCpp)
+outputCppContents = outputCppFile.read()
+outputCppFile.close()
+outputCppContents = outputCppContents.replace(
+    '#include "%s"' % os.path.basename(outputHTmp),
+    '#include "%s.h"' % inputRoot)
+outputCppFile = open(outputCpp, 'w')
+outputCppFile.write(outputCppContents)
+outputCppFile.close()
+
 # Read the header file in under the generated name and remove it.
 outputHFile = open(outputHTmp)
 outputHContents = outputHFile.read()
