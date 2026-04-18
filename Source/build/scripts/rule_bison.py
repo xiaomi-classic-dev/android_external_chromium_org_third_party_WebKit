@@ -88,6 +88,21 @@ for outputHTry in outputHTries:
 
 assert outputHTmp != None
 
+# Newer bison versions may emit the parser source including the generated
+# header as .hpp (or .cpp.h), but this wrapper normalizes the installed header
+# name to .h below. Rewrite the generated source to include the normalized
+# header name so the compile step can find it consistently across bison
+# versions.
+outputCppFile = open(outputCpp)
+outputCppContents = outputCppFile.read()
+outputCppFile.close()
+outputCppContents = outputCppContents.replace(
+    '#include "%s"' % os.path.basename(outputHTmp),
+    '#include "%s.h"' % inputRoot)
+outputCppFile = open(outputCpp, 'w')
+outputCppFile.write(outputCppContents)
+outputCppFile.close()
+
 # Read the header file in under the generated name and remove it.
 outputHFile = open(outputHTmp)
 outputHContents = outputHFile.read()

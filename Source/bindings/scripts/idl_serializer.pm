@@ -67,6 +67,10 @@ sub jsonToPerl
     # so we need to rebuild objects when deserializing
     my $jsonData = shift;
 
+    if (JSON::is_bool($jsonData)) {
+        return $jsonData ? 1 : 0;
+    }
+
     if (ref $jsonData eq "ARRAY") {
         return [map(jsonToPerl($_), @$jsonData)];
     }
@@ -84,6 +88,10 @@ sub jsonToPerl
             $hashRef->{$key} = jsonToPerl($jsonData->{$key});
         }
         return $hashRef;
+    }
+
+    if (ref $jsonData eq "SCALAR" || ref $jsonData eq "REF") {
+        return jsonToPerl($$jsonData);
     }
 
     die "Unexpected reference type: " . ref $jsonData . "\n" if ref $jsonData;
